@@ -39,8 +39,13 @@ app.post("/hook/:slug", async (req, res) => {
   const hookRaw = hooks.filter(h => h.slug === req.params.slug)[0]
   
   if(hookRaw && hookTypes[hookRaw.type]) {
-    const hook = new hookTypes[hookRaw.type](hookRaw)
-    hook.process(req, res)
+    try {
+      const hook = new hookTypes[hookRaw.type](hookRaw)
+      await hook.process(req, res)
+    } catch(e) {
+      console.log(e)
+      res.sendStatus(500)
+    }
   } else {
     res.sendStatus(404)
   }

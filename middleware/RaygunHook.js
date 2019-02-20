@@ -13,7 +13,7 @@ module.exports = class RaygunHook extends Hook {
       "ErrorReoccurred"
     ]
 
-    if(body.event === "event_notification" && handledEventTypes.includes(body.eventType)) {
+    if(body.event === "error_notification" && handledEventTypes.includes(body.eventType)) {
       this.payload.text = `Error from ${body.application.name}: ${body.error.message}`
 
       this.payload.attachments = [
@@ -37,7 +37,7 @@ module.exports = class RaygunHook extends Hook {
             },
             {
               title: "Tags",
-              value: body.error.tags.length === 0 ? "_(none)_" : body.error.tags.join(", "),
+              value: body.error.instance.tags.length === 0 ? "_(none)_" : body.error.instance.tags.join(", "),
               short: false
             }
           ]
