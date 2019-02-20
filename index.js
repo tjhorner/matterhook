@@ -6,13 +6,22 @@ try {
   config = process.env
 }
 
+const hooks = require('./hooks.json')
+
 const express = require('express')
-const bodyParser = require('body-parser')
 const request = require('./lib/request-promisified')
 const verifyHmac = require('./lib/hmac-verify')
 const commitToAttachment = require('./lib/commit-to-attachment')
 
+const GitHubHook = require('./middleware/GitHubHook')
+const RaygunHook = require('./middleware/RaygunHook')
+
 const app = express()
+
+const hookTypes = {
+  github: GitHubHook,
+  raygun: RaygunHook
+}
 
 app.use((req, res, next) => {
   req.body = ""
@@ -26,29 +35,15 @@ app.use((req, res, next) => {
   })
 })
 
-app.post("/hook", async (req, res) => {
-  try {
-    await verifyHmac(req.body, config.GITHUB_WEBHOOK_SECRET, req.headers["x-hub-signature"].split("=")[1])
-  } catch(e) {
-    res.sendStatus(401)
-    return
+app.post("/hook/:slug", async (req, res) => {
+  const hookRaw = hooks.filter(h => h.slug === req.params.slug)[0]
+  
+  if(hookRaw && hookTypes[hookRaw.type]) {
+    const hook = new hookTypes[hookRaw.type](hookRaw)
+    hook.process(req, res)
+  } else {
+    res.sendStatus(404)
   }
-
-  req.body = JSON.parse(req.body)
-
-  var response = { }
-
-  response.text = `[${req.body.pusher.name}](https://github.com/${req.body.pusher.name}) pushed ${req.body.commits.length === 1 ? "a commit" : "some commits"} to [${req.body.repository.full_name}](${req.body.repository.html_url})`
-
-  response.attachments = req.body.commits.map(commitToAttachment)
-
-  await request(config.MATTERMOST_HOOK_URL, {
-    method: "post",
-    json: true,
-    body: response
-  })
-
-  res.sendStatus(200)
 })
 
 app.listen(process.env.PORT || 3000)
