@@ -30,6 +30,8 @@ The Dockerfile for this image is in the root of this repo.
 
 Either in a `config.json` or in your environment variables, you can set a `MATTERMOST_HOOK_URL` to be used globally across all hooks. Or you can set up the URL in hooks individually.
 
+The `PORT` environment variable can also optionally be set if you wish to run it on a different port. The default is port 3000.
+
 ### Creating a hook
 
 Hooks live in `hooks.json`. It is an array of hooks you wish to define. Every hook can have these keys:
