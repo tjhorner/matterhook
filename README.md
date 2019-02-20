@@ -20,6 +20,12 @@ Pipe webhooks from other services into your Mattermost server.
 
 ## Setup
 
+### Docker
+
+There is a prebuilt Docker image on Docker Hub: `docker pull tjhorner/matterhook:latest`
+
+The Dockerfile for this image is in the root of this repo.
+
 ### Global config
 
 Either in a `config.json` or in your environment variables, you can set a `MATTERMOST_HOOK_URL` to be used globally across all hooks. Or you can set up the URL in hooks individually.
