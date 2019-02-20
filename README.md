@@ -30,6 +30,7 @@ Hooks live in `hooks.json`. It is an array of hooks you wish to define. Every ho
 
 - `type` - The type of hook this is (what service it connects to)
 - `slug` - The slug of the URL that should trigger this hook (e.g. `/hook/the_slug_goes_here`)
+- `hookUrl` - **(optional)** The Mattermost webhook URL to ping when this hook is triggered. If not set, it uses the `MATTERMOST_HOOK_URL` that was globally set.
 - `username` - **(optional)** The username to post as in Mattermost. If not set, it uses whatever is set in Mattermost.
 - `channel` - **(optional)** The channel to post to in Mattermost. If not set, it uses whatever is set in Mattermost.
 - `iconUrl` - **(optional)** The icon to use for the bot in Mattermost. If not set, it uses whatever is set in Mattermost.
@@ -76,3 +77,40 @@ Config keys:
 To configure this hook, go to your Raygun application > Integrations > Webhook > Setup then set the URL to `http://your_host/hook/{slug}`.
 
 The Raygun hook does not have any config options.
+
+## Contributing
+
+You can contribute to this project by adding another hook type or by extending a hook to be able to process other events.
+
+### Creating a hook type
+
+Code for hooks live in the `middleware` directory. Every hook extends the `Hook` class and must implement the constructor and a `process` method. The `process` method is passed a `Request` and `Response`, much like Express middleware. Set your Mattermost message payload in `this.payload`.
+
+Someone probably once said _"an example is worth 1000 documentation pages"_, so here is a very simple webhook that just logs whatever was in the request body to the console and sends a simple text message to Mattermost. See [Mattermost's documentation](https://developers.mattermost.com/integrate/incoming-webhooks/) to learn what you can send in a payload.
+
+```javascript
+const Hook = require('./Hook')
+
+class ExampleHook extends Hook {
+  constructor(hook) {
+    super(hook)
+  }
+
+  async process(req, res) {
+    console.log(req.body)
+
+    // In here, you can filter out certain event types
+    // and construct your Mattermost message payload.
+    this.payload.text = "This is a simple message"
+    
+    // When your payload is constructed, call the `fire()` method
+    // to send it to the user-defined Mattermost URL.
+    // It is not called automatically.
+    await this.fire()
+
+    res.sendStatus(200)
+  }
+}
+```
+
+Also check out the `GitHubHook` and `RaygunHook` for more examples.
