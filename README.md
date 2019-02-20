@@ -26,6 +26,8 @@ There is a prebuilt Docker image on Docker Hub: `docker pull tjhorner/matterhook
 
 The Dockerfile for this image is in the root of this repo.
 
+The root of the app is `/app`. Mount your `hooks.json` there, e.g. `/path/to/host/hooks.json:/app/hooks.json`
+
 ### Global config
 
 Either in a `config.json` or in your environment variables, you can set a `MATTERMOST_HOOK_URL` to be used globally across all hooks. Or you can set up the URL in hooks individually.
