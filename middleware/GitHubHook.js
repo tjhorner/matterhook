@@ -16,7 +16,7 @@ module.exports = class GitHubHook extends Hook {
       return
     }
 
-    if(req.headers["X-Github-Event"] === "push") {
+    if(req.headers["x-github-event"] === "push") {
       const body = JSON.parse(req.body)
 
       this.payload.text = `[${body.pusher.name}](https://github.com/${body.pusher.name}) pushed ${body.commits.length === 1 ? "a commit" : "some commits"} to [${body.repository.full_name}](${body.repository.html_url})`
